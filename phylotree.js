@@ -11,8 +11,11 @@ d3.layout.phylotree = function (container) {
         size                    = [1,1],
         newick_string           = null,
         separation              = function (_node,_previos) { return 0;},
+        min_node_span           = 1,
+        max_node_span           = 1,
         node_span               = function (_node)   { return 1; },
-        relative_node_span      = function (_node)   { return node_span (_node) / rescale_node_span},
+        node_span_scale         = d3.scale.linear().domain([min_node_span, max_node_span]).range([1, 10]),
+        relative_node_span      = function (_node)   { return node_span_scale(node_span(_node)); },
         def_branch_length_accessor  = function (_node) {
             if ("attribute" in _node && _node["attribute"] && _node["attribute"].length) {
                 var bl = parseFloat(_node["attribute"]);
@@ -83,7 +86,6 @@ d3.layout.phylotree = function (container) {
                                  .interpolate ("step-before"),
                                                 
         draw_scale_bar          = null,
-        rescale_node_span       = 1,
         count_listener_handler  = undefined,
         node_styler             = undefined,
         edge_styler             = undefined,
@@ -150,7 +152,7 @@ d3.layout.phylotree = function (container) {
             }
 
             if (is_leaf) {
-                var _node_span = node_span (a_node) / rescale_node_span;
+                var _node_span = relative_node_span(a_node);
                 x = a_node.x = x + separation (last_node, a_node) + (last_span + _node_span) * 0.5;
                 last_node = a_node;
                 _extents[0][1] = Math.max (_extents[0][1], x + _node_span * 0.5 + separation (last_node, a_node));
@@ -199,7 +201,9 @@ d3.layout.phylotree = function (container) {
             return a_node.x;
         }
         
-        rescale_node_span = nodes.map (function (d) { return node_span (d); }).reduce (function (p,c) {return Math.min (c,p || 1e200)}, null) || 1;          
+        min_node_span = nodes.map (function (d) { return node_span (d); }).reduce (function (p,c) {return Math.min (c,p || 1e200)}, null) || 1;
+        max_node_span = nodes.map (function (d) { return node_span (d); }).reduce (function (p,c) {return Math.max (c,p || 1)}, null) || 1;
+        node_span_scale.domain([min_node_span, max_node_span])
          
         nodes[0].x = tree_layout (nodes[0], do_scaling);
          
@@ -208,8 +212,6 @@ d3.layout.phylotree = function (container) {
             max_depth = nodes.reduce (function (p, c) { return Math.max (p,c.depth); }, 0);
             nodes[0].x = tree_layout (nodes[0]);
         }
-        
-        //console.log (_extents[1][0], node_span (nodes[0]) / rescale_node_span, nodes[0], rescale_node_span);
         
         if (options['y-spacing'] == 'fixed-width') {
             size[1] = _extents[1][1] * fixed_width[1];
