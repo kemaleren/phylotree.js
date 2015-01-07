@@ -11,12 +11,6 @@ d3.layout.phylotree = function (container) {
         size                    = [1,1],
         newick_string           = null,
         separation              = function (_node,_previos) { return 0;},
-        min_node_span           = 1,
-        max_node_span           = 1,
-        node_span               = function (_node)   { return 1; },
-        node_span_scale         = d3.scale.linear().domain([min_node_span, max_node_span]).range([1, 10]),
-        relative_node_span      = function (_node) { return node_span_scale(node_span(_node)); },
-        node_radius             = function (_node) { return relative_node_span(_node) * scales[0] * 0.5;},
         def_branch_length_accessor  = function (_node) {
             if ("attribute" in _node && _node["attribute"] && _node["attribute"].length) {
                 var bl = parseFloat(_node["attribute"]);
@@ -52,6 +46,8 @@ d3.layout.phylotree = function (container) {
                                     'x-spacing' : 'fixed-width',
                                     'show-scale' : 'top',
                                     'draw-size-bubbles': false,
+                                    'min-bubble-size': 1,
+                                    'max-bubble-size': 10,
                                     'binary-selectable': false,
                                     'attribute-list': []
                                   },
@@ -68,7 +64,15 @@ d3.layout.phylotree = function (container) {
                                    'tagged-branch': 'branch-tagged',
                                    'tree-selection-brush': 'tree-selection-brush',
                                    'clade' : 'clade'
-                                   },
+                                  },
+
+        min_node_span           = 1,
+        max_node_span           = 1,
+        node_span               = function (_node)   { return 1; },
+        node_span_scale         = d3.scale.linear().domain([min_node_span, max_node_span])
+                                  .range([options['min-bubble-size'], options['max-bubble-size']]),
+        relative_node_span      = function (_node) { return node_span_scale(node_span(_node)); },
+        node_radius             = function (_node) { return relative_node_span(_node) * scales[0] * 0.5;},
                                    
         nodes                   = [],
         links                   = [],
