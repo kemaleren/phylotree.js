@@ -15,7 +15,8 @@ d3.layout.phylotree = function (container) {
         max_node_span           = 1,
         node_span               = function (_node)   { return 1; },
         node_span_scale         = d3.scale.linear().domain([min_node_span, max_node_span]).range([1, 10]),
-        relative_node_span      = function (_node)   { return node_span_scale(node_span(_node)); },
+        relative_node_span      = function (_node) { return node_span_scale(node_span(_node)); },
+        node_radius             = function (_node) { return relative_node_span(_node) * scales[0] * 0.5;},
         def_branch_length_accessor  = function (_node) {
             if ("attribute" in _node && _node["attribute"] && _node["attribute"].length) {
                 var bl = parseFloat(_node["attribute"]);
@@ -1128,8 +1129,20 @@ d3.layout.phylotree = function (container) {
           drawn_nodes.exit().remove();
       }
           
-      drawn_nodes.attr("transform", function(d) { d.screen_x = x_coord(d); d.screen_y = y_coord(d); return "translate(" + d.screen_x + "," + d.screen_y + ")"; })
-          .attr("class", phylotree.reclass_node).each (function (d) { label_width = Math.max (label_width,phylotree.draw_node (this, d, transitions)); });                             
+      drawn_nodes.attr("transform", function(d) {
+          d.screen_x = x_coord(d);
+          if(options['draw-size-bubbles']) {
+              // move node to the right, so tree branches are visible
+              if(d3_phylotree_is_leafnode(d)) {
+                  d.screen_x += node_radius(d);
+              }
+          }
+          d.screen_y = y_coord(d);
+          return "translate(" + d.screen_x + "," + d.screen_y + ")";
+      });
+      drawn_nodes.attr("class", phylotree.reclass_node).each (function (d) {
+          label_width = Math.max (label_width,phylotree.draw_node (this, d, transitions));
+      });
       
       var sizes =   d3_phylotree_resize_svg (phylotree, svg, transitions);
       
@@ -1320,7 +1333,7 @@ d3.layout.phylotree = function (container) {
           
       
           if (options['draw-size-bubbles']) {
-              var shift = relative_node_span (node) * scales[0] * 0.5;
+              var shift = node_radius(node);
               var circles = container.selectAll ("circle").data ([shift]);
               circles.enter().append ("circle");
               if (transitions) {
