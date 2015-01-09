@@ -66,7 +66,7 @@ d3.layout.phylotree = function (container) {
                                    'clade' : 'clade'
                                   },
 
-        min_node_span           = 1,
+        min_node_span           = 1,  // used in node_span_scale; updated when tree gets built
         max_node_span           = 1,
         node_span               = function (_node)   { return 1; },
         node_span_scale         = d3.scale.linear().domain([min_node_span, max_node_span])
