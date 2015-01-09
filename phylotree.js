@@ -1048,14 +1048,14 @@ d3.layout.phylotree = function (container) {
       enclosure.enter().append ("g")
                       .attr ("class", css_classes["tree-container"]);
                       
-      enclosure.attr ("transform", function (d) { return "translate(" + offsets[1] + "," + (phylotree.pad_height()) + ")";}); 
+      enclosure.attr ("transform", function (d) { return "translate(0," + (phylotree.pad_height()) + ")";});
                
       if (draw_scale_bar) {
           var scale_bar = svg.selectAll ("." + css_classes["tree-scale-bar"]).data ([0]);
           scale_bar.enter().append("g");
           scale_bar.attr ("class", css_classes["tree-scale-bar"])
                    .style ("font-size", "" + scale_bar_font_size)
-                   .attr ("transform", function (d) { return "translate(" + offsets[1] + "," + (phylotree.pad_height()-10) + ")";}) 
+                   .attr ("transform", function (d) { return "translate(0," + (phylotree.pad_height()-10) + ")";})
                    .call (draw_scale_bar);
           scale_bar.selectAll ("text")
                    .style ("text-anchor", "end");
