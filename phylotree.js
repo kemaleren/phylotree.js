@@ -206,9 +206,7 @@ d3.layout.phylotree = function (container) {
             return a_node.x;
         }
         
-        min_node_span = nodes.map (function (d) { return node_span (d); }).reduce (function (p,c) {return Math.min (c,p || 1e200)}, null) || 1;
-        max_node_span = nodes.map (function (d) { return node_span (d); }).reduce (function (p,c) {return Math.max (c,p || 1)}, null) || 1;
-        node_span_scale.domain([min_node_span, max_node_span])
+        node_span_scale.domain(d3.extent(nodes.map(function (d) { return node_span (d); })));
          
         nodes[0].x = tree_layout (nodes[0], do_scaling);
          
