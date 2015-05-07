@@ -1005,6 +1005,11 @@ d3.layout.phylotree = function (container) {
   }
 
 
+  phylotree.update_scale = function() {
+    node_span_scale.range([options['min-bubble-size'], options['max-bubble-size']]);
+  }
+
+
   phylotree.options = function (opt, run_update) {
       if (!arguments.length) return options;
       
