@@ -66,8 +66,9 @@ d3.layout.phylotree = function (container) {
                                    'clade' : 'clade'
                                   },
 
-        min_node_span           = 1,  // used in node_span_scale; updated when tree gets built
+        min_node_span           = 1,  // updated when tree gets built
         max_node_span           = 1,
+        min_relative_span       = 1.1,  // ensure branches are spread vertically even if bubble is tiny
         node_span               = function (_node)   { return 1; },
         node_span_scale         = d3.scale.linear().domain([min_node_span, max_node_span])
                                   .range([options['min-bubble-size'], options['max-bubble-size']]),
@@ -157,7 +158,7 @@ d3.layout.phylotree = function (container) {
             }
 
             if (is_leaf) {
-                var _node_span = relative_node_span(a_node);
+                var _node_span = Math.max(relative_node_span(a_node), min_relative_span);
                 x = a_node.x = x + separation (last_node, a_node) + (last_span + _node_span) * 0.5;
                 last_node = a_node;
                 _extents[0][1] = Math.max (_extents[0][1], x + _node_span * 0.5 + separation (last_node, a_node));
