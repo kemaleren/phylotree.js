@@ -965,6 +965,9 @@ d3.layout.phylotree = function (container) {
     }
 
      phylotree.node_bubble_size = function (node) {
+       if (!d3_phylotree_is_leafnode(node)) {
+         return 0;
+       }
        return options['draw-size-bubbles'] ? relative_node_span (node) * scales[0] * 0.5 : 0;
      }
 
