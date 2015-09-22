@@ -14,9 +14,6 @@ d3.layout.phylotree = function(container) {
         node_span = function(_node) {
             return 1;
         },
-        relative_node_span = function(_node) {
-            return node_span(_node) / rescale_node_span;
-        },
         def_branch_length_accessor = function(_node) {
             if ("attribute" in _node && _node["attribute"] && _node["attribute"].length) {
                 var bl = parseFloat(_node["attribute"]);
@@ -121,7 +118,6 @@ d3.layout.phylotree = function(container) {
 
     draw_branch = draw_line,
         draw_scale_bar = null,
-        rescale_node_span = 1,
         count_listener_handler = undefined,
         node_styler = undefined,
         edge_styler = undefined,
@@ -244,9 +240,11 @@ d3.layout.phylotree = function(container) {
 
 
             if (is_leaf) {
-                var _node_span = relative_node_span(a_node);
+                var _node_span;
                 if (options['overlap-bubbles']) {
-                    _node_span = 1 / rescale_node_span;
+                    _node_span = 1;
+                } else {
+                    _node_span = node_span(a_node);
                 }
                 x = a_node.x = x + separation(last_node, a_node) + (last_span + _node_span) * 0.5;
                 _extents[1][1] = Math.max(_extents[1][1], a_node.y);
@@ -302,12 +300,6 @@ d3.layout.phylotree = function(container) {
 
             return a_node.x;
         }
-
-        rescale_node_span = nodes.map(function(d) {
-            return node_span(d);
-        }).reduce(function(p, c) {
-            return Math.min(c, p || 1e200)
-        }, null) || 1;
 
         nodes[0].x = tree_layout(nodes[0], do_scaling);
 
@@ -1041,7 +1033,7 @@ d3.layout.phylotree = function(container) {
     }
 
     phylotree.node_bubble_size = function(node) {
-        return options['draw-size-bubbles'] ? relative_node_span(node) * scales[0] * 0.5 : 0;
+        return options['draw-size-bubbles'] ? node_span(node) * scales[0] * 0.5 : 0;
     }
 
     phylotree.shift_tip = function(d) {
