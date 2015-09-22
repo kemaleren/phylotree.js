@@ -15,7 +15,7 @@ d3.layout.phylotree = function(container) {
             return 1;
         },
         relative_node_span = function(_node) {
-            return node_span(_node) / rescale_node_span
+            return node_span(_node) / rescale_node_span;
         },
         def_branch_length_accessor = function(_node) {
             if ("attribute" in _node && _node["attribute"] && _node["attribute"].length) {
@@ -52,7 +52,8 @@ d3.layout.phylotree = function(container) {
             'show-scale': 'top',
             // currently not implemented to support any other positioning
             'draw-size-bubbles': false,
-            'shift-nodes': true,
+            'shift-nodes': false,
+            'overlap-bubbles': false,
             'binary-selectable': false,
             'is-radial': false,
             'attribute-list': [],
@@ -146,7 +147,7 @@ d3.layout.phylotree = function(container) {
             node.x *= scales[0];
             node.y *= scales[1];
             node.radius = radius * (node.y / size[1] + radial_root_offset);
- 
+
             if (!node.angle) {
                 node.angle = 2 * Math.PI * node.x * scales[0] / size[0];
             }
@@ -243,8 +244,10 @@ d3.layout.phylotree = function(container) {
 
 
             if (is_leaf) {
-                var _node_span = node_span(a_node) / rescale_node_span;
-
+                var _node_span = relative_node_span(a_node);
+                if (options['overlap-bubbles']) {
+                    _node_span = 1 / rescale_node_span;
+                }
                 x = a_node.x = x + separation(last_node, a_node) + (last_span + _node_span) * 0.5;
                 _extents[1][1] = Math.max(_extents[1][1], a_node.y);
                 _extents[1][0] = Math.min(_extents[1][0], a_node.y - _node_span * 0.5);
@@ -424,17 +427,17 @@ d3.layout.phylotree = function(container) {
             });
 
             radius = Math.min(options['max-radius'], Math.max(effective_span / 2 / Math.PI, min_radius));
-        
+
             if (annular_shift) {
                 var scaler = 1;
-                
+
                  nodes.forEach(function(d) {
                     d.radius = d.y*scales[1]/size[1] + annular_shift;
                     scaler = Math.max (scaler, d.radius);
-                    
+
                 });
-                
-                
+
+
                 if (scaler > 1) {
                     scales[0] /= scaler;
                     scales[1] /= scaler;
