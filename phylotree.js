@@ -48,6 +48,7 @@ d3.layout.phylotree = function(container) {
             'top-bottom-spacing': 'fixed-step',
             'show-scale': 'top',
             // currently not implemented to support any other positioning
+            'height-scale': 1.0,
             'draw-size-bubbles': false,
             'shift-nodes': false,
             'overlap-bubbles': false,
@@ -241,10 +242,9 @@ d3.layout.phylotree = function(container) {
 
             if (is_leaf) {
                 var _node_span;
-                if (options['overlap-bubbles']) {
-                    _node_span = 1;
-                } else {
-                    _node_span = node_span(a_node);
+                _node_span = node_span(a_node);
+                if (!options['draw-size-bubbles'] || options['overlap-bubbles']) {
+                    _node_span = options['height-scale'];
                 }
                 x = a_node.x = x + separation(last_node, a_node) + (last_span + _node_span) * 0.5;
                 _extents[1][1] = Math.max(_extents[1][1], a_node.y);
